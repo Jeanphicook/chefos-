@@ -3929,8 +3929,35 @@ JSON UNIQUEMENT :
     });
 
     const data = await res.json();
-    if(data.error) throw new Error(data.error);
-    currentDish = data.parsed;
+    console.log('API status:', res.status, '| data keys:', Object.keys(data).join(','));
+
+    if(data.error) throw new Error(data.error.message || 'API error: ' + JSON.stringify(data.error));
+
+    // Handle both streaming and non-streaming responses
+    const textBlocks = (data.content || []).filter(i => i.type === 'text');
+    if(!textBlocks.length) {
+      console.log('Full response:', JSON.stringify(data).slice(0, 500));
+      throw new Error('Aucun bloc texte dans la réponse — stop_reason: ' + (data.stop_reason || '?'));
+    }
+
+    const raw = textBlocks.map(i => i.text).join('')
+      .replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+
+    console.log('Raw text preview:', raw.slice(0, 300));
+
+    // Extract JSON object robustly
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('Aucun JSON trouvé dans: ' + raw.slice(0,100));
+
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch(parseErr) {
+      console.log('Parse error on:', jsonMatch[0].slice(0,200));
+      throw new Error('JSON invalide: ' + parseErr.message);
+    }
+
+    currentDish = parsed;
     if(!currentDish.nom_court) currentDish.nom_court = currentDish.nom_plat || currentDish.nom_gastronomique || '—';
 
     document.getElementById('loading').classList.remove('vis');
