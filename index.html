@@ -3951,7 +3951,7 @@ JSON UNIQUEMENT :
 
     let parsed;
     try {
-      parsed = JSON.parse(jsonMatch[0]);
+      parsed = JSON.parse(jsonMatch[0].replace(/[\u0000-\u001F]/g, " "));
     } catch(parseErr) {
       console.log('Parse error on:', jsonMatch[0].slice(0,200));
       throw new Error('JSON invalide: ' + parseErr.message);
