@@ -1,19 +1,50 @@
 exports.handler = async function(event) {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: ''
+    };
+  }
+ 
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
  
+  // Log pour debug
+  console.log('Body reçu:', event.body ? event.body.slice(0, 200) : 'VIDE');
+ 
+  let prompt = '';
   try {
     const body = JSON.parse(event.body || '{}');
-    const prompt = body.prompt || '';
+    prompt = body.prompt || body.message || body.content || '';
+    console.log('Prompt extrait:', prompt.slice(0, 100));
+  } catch(e) {
+    console.log('Erreur parse body:', e.message);
+    // Si pas de JSON valide, utiliser le body brut
+    prompt = event.body || '';
+  }
  
-    if (!prompt) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Prompt manquant' })
-      };
-    }
+  if (!prompt) {
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ 
+        error: 'Prompt manquant',
+        body_recu: event.body ? event.body.slice(0, 100) : 'null'
+      })
+    };
+  }
  
+  try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -28,19 +59,7 @@ exports.handler = async function(event) {
       })
     });
  
-    const text = await response.text();
-    console.log('API raw response:', text.slice(0, 500));
- 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch(e) {
-      return {
-        statusCode: 500,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Réponse API non-JSON: ' + text.slice(0, 200) })
-      };
-    }
+    const data = await response.json();
  
     return {
       statusCode: 200,
@@ -54,7 +73,10 @@ exports.handler = async function(event) {
   } catch (error) {
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
       body: JSON.stringify({ error: error.message })
     };
   }
