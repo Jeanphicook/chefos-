@@ -3928,11 +3928,9 @@ JSON UNIQUEMENT :
       })
     });
 
-   const data = await res.json();
-if(data.error) throw new Error(data.error);
-currentDish = data.parsed;
-if(!currentDish.nom_court) currentDish.nom_court = currentDish.nom_plat || '—';
-
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    currentDish = data.parsed;
     if(!currentDish.nom_court) currentDish.nom_court = currentDish.nom_plat || currentDish.nom_gastronomique || '—';
 
     document.getElementById('loading').classList.remove('vis');
