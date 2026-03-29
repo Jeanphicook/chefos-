@@ -1,6 +1,3 @@
-
-Copier
-
 exports.handler = async function(event) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -25,20 +22,31 @@ exports.handler = async function(event) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 1200,
         messages: [{ role: 'user', content: prompt }]
       })
     });
  
-    const data = await response.json();
+    const text = await response.text();
+    console.log('API raw response:', text.slice(0, 500));
+ 
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch(e) {
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Réponse API non-JSON: ' + text.slice(0, 200) })
+      };
+    }
  
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Origin': '*'
       },
       body: JSON.stringify(data)
     };
