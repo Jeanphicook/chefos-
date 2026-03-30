@@ -1,4 +1,3 @@
-cat > ~/Downloads/api-generate-fix.js << 'EOF'
 const https = require('https');
 
 module.exports = async function(req, res) {
@@ -8,26 +7,38 @@ module.exports = async function(req, res) {
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method Not Allowed' }); return; }
 
-  const body = req.body || {};
-  
-  // Accepte { prompt } ou { messages }
-  let postData;
-  if (body.prompt) {
-    postData = JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1200,
-      messages: [{ role: 'user', content: body.prompt }]
-    });
-  } else if (body.messages) {
-    postData = JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1200,
-      messages: body.messages
-    });
-  } else {
-    res.status(400).json({ error: 'Prompt manquant' });
+  // Parse body manually
+  let body = {};
+  try {
+    if (typeof req.body === 'string') {
+      body = JSON.parse(req.body);
+    } else if (req.body && typeof req.body === 'object') {
+      body = req.body;
+    } else {
+      // Read raw body
+      const rawBody = await new Promise((resolve) => {
+        let data = '';
+        req.on('data', chunk => data += chunk);
+        req.on('end', () => resolve(data));
+      });
+      body = JSON.parse(rawBody || '{}');
+    }
+  } catch(e) {
+    res.status(400).json({ error: 'Body parse error: ' + e.message });
     return;
   }
+
+  const prompt = body.prompt || '';
+  if (!prompt) {
+    res.status(400).json({ error: 'Prompt manquant', body_type: typeof req.body });
+    return;
+  }
+
+  const postData = JSON.stringify({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1200,
+    messages: [{ role: 'user', content: prompt }]
+  });
 
   const options = {
     hostname: 'api.anthropic.com',
@@ -59,12 +70,13 @@ module.exports = async function(req, res) {
     const text = (data.content || []).filter(i => i.type === 'text').map(i => i.text).join('');
     const start = text.indexOf('{');
     const end = text.lastIndexOf('}');
-    if (start === -1 || end === -1) { res.status(500).json({ error: 'Aucun JSON', raw: text.slice(0,200) }); return; }
+    if (start === -1 || end === -1) {
+      res.status(500).json({ error: 'Aucun JSON', raw: text.slice(0, 200) });
+      return;
+    }
     const parsed = JSON.parse(text.slice(start, end + 1));
     res.status(200).json({ parsed });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-EOF
-echo "OK"
