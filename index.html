@@ -584,11 +584,12 @@ body {
   .chef-select { width: 100%; }
   /* Bouton générer sticky */
   .go-btn {
-    position: fixed; bottom: 0; left: 0;
+    position: sticky; bottom: 0; left: 0;
     width: 100%; z-index: 300;
     padding: 1rem; border-radius: 0;
+    margin-top: 0.5rem;
   }
-  .results-scroll { padding: 1rem; padding-bottom: 80px; }
+  .results-scroll { padding: 1rem; padding-bottom: 1rem; }
   /* Résultats */
   .blocs { grid-template-columns: repeat(2,1fr) !important; }
   .card-nom { font-size: 1.3rem; }
@@ -597,6 +598,15 @@ body {
   .nav-tabs { overflow-x: auto; scrollbar-width: none; }
   .nav-tabs::-webkit-scrollbar { display: none; }
   .nav-tab { white-space: nowrap; }
+  /* Eviter chevauchement mémorisés */
+  .saved-overlay, .memory-panel, #saved-panel {
+    position: relative !important;
+    z-index: 10;
+  }
+  .pairing-hint, #pairing-hint {
+    position: relative !important;
+    z-index: 5;
+  }
 }
 </style>
 </head>
