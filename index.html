@@ -535,6 +535,27 @@ body {
 }
 .estat-val { font-family:'Libre Baskerville',serif; font-size:1.6rem; font-style:italic; color:var(--accent); }
 .estat-lbl { font-size:0.57rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--text-dim); }
+
+@media(max-width: 768px) {
+  .workspace, #ws-create { display: block !important; }
+  .panel-left, .panel-right { display: none !important; }
+  .panel-center { width: 100% !important; min-height: auto; }
+  .input-area { padding: 1rem; }
+  .results-scroll { padding: 1rem; padding-bottom: 80px; }
+  .go-btn {
+    position: fixed; bottom: 0; left: 0;
+    width: 100%; z-index: 300;
+    padding: 1rem; border-radius: 0;
+  }
+  .nav-tabs { overflow-x: auto; scrollbar-width: none; }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab { white-space: nowrap; padding: 0.75rem 1rem; }
+  .blocs { grid-template-columns: repeat(2,1fr) !important; }
+  .card-nom { font-size: 1.4rem; }
+  .input-row { flex-direction: column; }
+  .chef-select { width: 100%; }
+  .topbar { padding: 0 1rem; }
+}
 </style>
 </head>
 <body>
