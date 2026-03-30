@@ -541,19 +541,28 @@ body {
   .workspace, #ws-create {
     display: flex !important;
     flex-direction: column !important;
-  }
-  /* Tous les panels visibles en colonne */
-  .panel-left {
     width: 100% !important;
+  }
+  /* Panel gauche pleine largeur */
+  aside.panel-left, .panel-left {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
     border-right: none !important;
     border-bottom: 1px solid var(--border);
-    max-height: 45vh;
+    max-height: 50vh;
     overflow-y: auto;
+    flex-shrink: 0;
   }
+  /* Panel centre pleine largeur */
   .panel-center {
     width: 100% !important;
+    min-width: 0 !important;
+    flex-shrink: 0;
   }
-  .panel-right {
+  /* Panel droit caché */
+  aside.panel-right, .panel-right {
     display: none !important;
   }
   /* Mois scrollables horizontalement */
