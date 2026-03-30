@@ -537,24 +537,57 @@ body {
 .estat-lbl { font-size:0.57rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--text-dim); }
 
 @media(max-width: 768px) {
-  .workspace, #ws-create { display: block !important; }
-  .panel-left, .panel-right { display: none !important; }
-  .panel-center { width: 100% !important; min-height: auto; }
-  .input-area { padding: 1rem; }
-  .results-scroll { padding: 1rem; padding-bottom: 80px; }
+  /* Layout en colonne */
+  .workspace, #ws-create {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  /* Tous les panels visibles en colonne */
+  .panel-left {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border);
+    max-height: 45vh;
+    overflow-y: auto;
+  }
+  .panel-center {
+    width: 100% !important;
+  }
+  .panel-right {
+    display: none !important;
+  }
+  /* Mois scrollables horizontalement */
+  .month-grid {
+    display: flex !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 0.3rem;
+    padding-bottom: 0.3rem;
+  }
+  .month-grid::-webkit-scrollbar { display: none; }
+  .month-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  /* Input area */
+  .input-area { padding: 0.8rem; }
+  .input-row { flex-direction: column; gap: 0.5rem; }
+  .chef-select { width: 100%; }
+  /* Bouton générer sticky */
   .go-btn {
     position: fixed; bottom: 0; left: 0;
     width: 100%; z-index: 300;
     padding: 1rem; border-radius: 0;
   }
+  .results-scroll { padding: 1rem; padding-bottom: 80px; }
+  /* Résultats */
+  .blocs { grid-template-columns: repeat(2,1fr) !important; }
+  .card-nom { font-size: 1.3rem; }
+  .topbar { padding: 0 0.8rem; }
+  /* Nav tabs */
   .nav-tabs { overflow-x: auto; scrollbar-width: none; }
   .nav-tabs::-webkit-scrollbar { display: none; }
-  .nav-tab { white-space: nowrap; padding: 0.75rem 1rem; }
-  .blocs { grid-template-columns: repeat(2,1fr) !important; }
-  .card-nom { font-size: 1.4rem; }
-  .input-row { flex-direction: column; }
-  .chef-select { width: 100%; }
-  .topbar { padding: 0 1rem; }
+  .nav-tab { white-space: nowrap; }
 }
 </style>
 </head>
